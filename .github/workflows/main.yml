@@ -46,4 +46,4 @@ runs-on: ubuntu-latest
           MESSAGE+="--------------------------------\n${NOW_YEAR}년에 푼 문제\n*총합 $TOTAL 문제 입니다"
 
         # 채널로 메시지 보내기
-          curl -X POST --data-urlencode "payload={\"channel\": \"#알고_알리미\", \"username\": \"알고 알리미\", \"text\": \"${MESSAGE}\", \"icon_emoji\": \":male-technologist:\"}"${{ secrets.SLACK_URL }}
+          curl -X POST --data-urlencode "payload={\"channel\": \"#알고리즘_알리미\", \"username\": \"알고리즘 알리미\", \"text\": \"${MESSAGE}\", \"icon_emoji\": \":male-technologist:\"}"${{ secrets.SLACK_URL }}
