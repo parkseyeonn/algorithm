@@ -1,0 +1,47 @@
+name: algo_daily_alarm
+
+on:
+schedule: - cron: "00 11 \* \* \*" # 오후 8시
+
+jobs:
+algorithm_daily_alarm:
+runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: POST Algo repo daily alarm to Slack
+        shell: bash
+        run:
+        # 현재 시간 정보 가져오기
+          echo slack algo alarm
+          NOW_DATE=$(date +%Y.%m.%d)
+          NOW_MONTH=$(date +%0m)
+          NOW_YEAR=$(date +%Y)
+
+        # 이번 달에 해당하는 알고리즘 문제 풀이 폴더 찾고 푼 문제 개수 COUNT 변수에 저장
+        # 알고리즘 문제 풀이 폴더들은 problems라는 디렉토리 안에 'YYYYmm'의 형식으로 만들어져야 인식됩니다.
+          TARGET_FILE_NAME="${NOW_YEAR}${NOW_MONTH}"
+          TARGET_FILE_PATH="problems/${TARGET_FILE_NAME}"
+          COUNT=$(ls -al $TARGET_FILE_PATH | grep -E "^-.*\.py$|^-.*\.js" | wc -l | sed 's/ //g')
+          SITUATION=""
+
+        # 알고리즘 푼 문제 개수에 따른 응원(?)메시지 분기문
+          if [ $COUNT -lt 3 ]
+          then
+              SITUATION="더 분발하세요!!!"
+          elif [ $COUNT -ge 3 -a $COUNT -lt 8 ]
+          then
+              SITUATION="잘 하고 계시네요. 화이팅!!"
+          elif [ $COUNT -ge 8 -a $COUNT -lt 10 ]
+          then
+              SITUATION="이번달 목표를 거의 다 달성하셨네요. 대단해요!!"
+          else
+              SITUATION="30문제 넘게 푸셨네요!!!! 대박대박 너무 짱짱맨입니다!!"
+          fi
+
+          DAILY_MESSAGE="알고리즘 문제 풀기 좋은 밤이네요!\n현재일($NOW_DATE)기준으로, *${NOW_YEAR}년 ${NOW_MONTH}월에 ${COUNT}문제* 푸셨어요\n한 달 목표는 *10문제* 입니다. ${SITUATION}"
+
+        # 슬랙 채널로 메시지 요청
+          curl -X POST --data-urlencode "payload={\"channel\": \"#알고리즘_알리미\", \"username\": \"알고리즘 알리미\", \"text\": \"${DAILY_MESSAGE}\", \"icon_emoji\": \":male-technologist:\"}" ${{ secrets.SLACK_URL }}
